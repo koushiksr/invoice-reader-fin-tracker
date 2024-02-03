@@ -120,18 +120,19 @@ app.post("/expense/upload/:data", upload.single("pdfFile"), async (req, res) => 
   try {
    if(typeof req.file!="undefined"){
      pdfText = await parsePdf(req.file.buffer);
-    pdfText.forEach((a) => {
-      allWordOfPDF.push(...a.split(" "));
-    });
-    pdfTextString = allWordOfPDF.join(" ");
-
-    if (pdfTextString.includes("Amazon")) {
-      stringWithoutSpaces = pdfText;
-      reciptType = "Amazon";
-    } else {
-      stringWithoutSpaces = pdfText.join("").replace(/\s/g, "");
-      reciptType = "Plain";
-    }
+     pdfText.forEach((a) => {
+       allWordOfPDF.push(...a.split(" "));
+      });
+      pdfTextString = allWordOfPDF.join(" ");
+      
+      // if (pdfTextString.includes("Amazon")) {
+        //   stringWithoutSpaces = pdfText;
+        //   reciptType = "Amazon";
+        // } else {
+          stringWithoutSpaces = pdfText.join("").replace(/\s/g, "");
+          // reciptType = "Plain";
+          // }
+          console.log(stringWithoutSpaces);
   }
     if (req.params.data == "null") {
       const keywordData = await keywordDetetctor(
@@ -331,8 +332,8 @@ async function keywordDetetctor(billArray, reciptType) {
 
   // if (reciptType === "Amazon") {
     // console.log("Amazon recipt");
-  if(reciptType === "Plain" ){
-    // console.log("plain recipt");
+  // if(reciptType === "Plain" ){
+  //  console.log(billArray,"plain recipt");
     for (let i = 0; i + 3 < billArray.length; i++) {
       if (
         billArray[i].toLowerCase() === "s" &&
@@ -348,7 +349,7 @@ async function keywordDetetctor(billArray, reciptType) {
         ) {
           cost = cost + billArray[i + 3];
         }
-        SGST =  parseInt(cost);
+        GST = CGST+ parseInt(cost);
       }
       if (
         billArray[i].toLowerCase() === "c" &&
@@ -364,7 +365,7 @@ async function keywordDetetctor(billArray, reciptType) {
         ) {
           cost = cost + billArray[i + 3];
         }
-        CGST = parseInt(cost);
+        GST = parseInt(cost);
       }
       if (
         billArray[i].toLowerCase() === "m" &&
@@ -380,7 +381,7 @@ async function keywordDetetctor(billArray, reciptType) {
         ) {
           cost = cost + billArray[i + 3];
         }
-        misc =  parseInt(cost);
+        misc =  SGST+parseInt(cost);
       }
       if (
         billArray[i].toLowerCase() === "r" &&
@@ -516,148 +517,114 @@ async function keywordDetetctor(billArray, reciptType) {
       panNo,
       misc,
     };
-  }else{
-    for (let i = 0; i < billArray.length; i++) {
-      if (billArray[i].toLowerCase() === "Invoice Date :".toLowerCase()) {
-        invoiceDate = billArray[i + 1];
-      }
-      if (billArray[i].toLowerCase() === "Invoice no :".toLowerCase()) {
-        invoiceDate = billArray[i + 1];
-      }
-      if (billArray[i].toLowerCase() === "dated :".toLowerCase()) {
-        invoiceDate = billArray[i + 1];
-      }
-      if (billArray[i].toLowerCase() === "PAN No:".toLowerCase()) {
-        panNo = billArray[i + 1];
-      }
-      if (billArray[i].toLowerCase() === "PAN No :".toLowerCase()) {
-        panNo = billArray[i + 1];
-      }
-      if (billArray[i].toLowerCase() === "GST Registration No:".toLowerCase()) {
-        GSTNO = billArray[i + 1];
-      }
-      if (billArray[i].toLowerCase() === "GST".toLowerCase()) {
-        GSTNO = billArray[i + 1];
-        console.log(billArray[i]);
-        console.log(billArray[i+1]);
-        console.log(GSTNO);
-      }
-      if (billArray[i].toLowerCase() === "Order Number:".toLowerCase()) {
-        orderNo = billArray[i + 1];
-      }
-      if (billArray[i].toLowerCase() === "Invoice Details :".toLowerCase()) {
-        invoiceDetails = billArray[i + 1];
-      }
-      if (billArray[i].toLowerCase() === "Unit".toLowerCase() && billArray[i + 1].toLowerCase() === "Price".toLowerCase()) {
-        unitPrice = parseFloat(billArray[i + 18].replace("₹", ""));
-      }
-      if (billArray[i].toLowerCase() === "Qty".toLowerCase()) {
-        qty = parseFloat(billArray[i + 17]);
-      }
-      if (billArray[i].toLowerCase() === "Net".toLowerCase() && billArray[i + 1].toLowerCase() === "Amount".toLowerCase()) {
-        netAmount = parseFloat(billArray[i + 17].replace("₹", ""));
-      }
-      if (billArray[i].toLowerCase() === "Tax".toLowerCase() && billArray[i + 1].toLowerCase() === "Rate".toLowerCase()) {
-        taxRate = parseFloat(billArray[i + 16].replace("%", ""));
-      }
-      if (billArray[i].toLowerCase() === "Tax".toLowerCase() && billArray[i + 1].toLowerCase() === "Type".toLowerCase()) {
-        taxType = billArray[i + 15];
-      }
-      if (billArray[i].toLowerCase() === "Tax".toLowerCase() && billArray[i + 1].toLowerCase() === "Amount".toLowerCase()) {
-        taxAmount = parseFloat(billArray[i + 17].replace("₹", ""));
-      }
-      if (billArray[i].toLowerCase() === "TOTAL:".toLowerCase()) {
-        totaltaxAmount = parseFloat(billArray[i + 1].replace("₹", ""));
-        totalAmount = parseFloat(billArray[i + 2].replace("₹", ""));
-      }
-      if (billArray[i].toLowerCase() === "TOTAL".toLowerCase()) {
-        totaltaxAmount = parseFloat(billArray[i + 1].replace("₹", ""));
-        totalAmount = parseFloat(billArray[i + 2].replace("₹", ""));
-      }
-      if (billArray[i].toLowerCase() === "GRAND TOTAL".toLowerCase()) {
-        totaltaxAmount = parseFloat(billArray[i + 1].replace("₹", ""));
-        totalAmount = parseFloat(billArray[i + 2].replace("₹", ""));
-      }
-      if (billArray[i].toLowerCase() === "GRAND TOTAL :".toLowerCase()) {
-        totaltaxAmount = parseFloat(billArray[i + 1].replace("₹", ""));
-        totalAmount = parseFloat(billArray[i + 2].replace("₹", ""));
-      }
-      if (billArray[i].toLowerCase() === "TOTAL=".toLowerCase()) {
-        totaltaxAmount = parseFloat(billArray[i + 1].replace("₹", ""));
-        totalAmount = parseFloat(billArray[i + 2].replace("₹", ""));
-      }
-      if (billArray[i].toLowerCase() === "TOTAL=".toLowerCase()) {
-        totaltaxAmount = parseFloat(billArray[i + 1].replace("₹", ""));
-        totalAmount = parseFloat(billArray[i + 2].replace("₹", ""));
-      }
-      if (billArray[i].toLowerCase() === "GRAND TOTAL=".toLowerCase()) {
-        totaltaxAmount = parseFloat(billArray[i + 1].replace("₹", ""));
-        totalAmount = parseFloat(billArray[i + 2].replace("₹", ""));
-      }
-      if (billArray[i].toLowerCase() === "GRAND TOTAL =".toLowerCase()) {
-        totaltaxAmount = parseFloat(billArray[i + 1].replace("₹", ""));
-        totalAmount = parseFloat(billArray[i + 2].replace("₹", ""));
-      }
+  // }else{
+  //   console.log(billArray,"other")
+  //   for (let i = 0; i < billArray.length; i++) {
+  //     if (billArray[i].toLowerCase() === "Invoice Date :".toLowerCase()) {
+  //       invoiceDate = billArray[i + 1];
+  //     }
+  //     if (billArray[i].toLowerCase() === "Invoice no :".toLowerCase()) {
+  //       invoiceDate = billArray[i + 1];
+  //     }
+  //     if (billArray[i].toLowerCase() === "dated :".toLowerCase()) {
+  //       invoiceDate = billArray[i + 1];
+  //     }
+  //     if (billArray[i].toLowerCase() === "PAN No:".toLowerCase()) {
+  //       panNo = billArray[i + 1];
+  //     }
+  //     if (billArray[i].toLowerCase() === "PAN No :".toLowerCase()) {
+  //       panNo = billArray[i + 1];
+  //     }
+  //     if (billArray[i].toLowerCase() === "GST Registration No:".toLowerCase()) {
+  //       GSTNO = billArray[i + 1];
+  //     }
+  //     if (billArray[i].toLowerCase() === "GST".toLowerCase()) {
+  //       GSTNO = billArray[i + 1];
+  //       console.log(billArray[i]);
+  //       console.log(billArray[i+1]);
+  //       console.log(GSTNO);
+  //     }
+  //     if (billArray[i].toLowerCase() === "Order Number:".toLowerCase()) {
+  //       orderNo = billArray[i + 1];
+  //     }
+  //     if (billArray[i].toLowerCase() === "Invoice Details :".toLowerCase()) {
+  //       invoiceDetails = billArray[i + 1];
+  //     }
+  //     if (billArray[i].toLowerCase() === "Unit".toLowerCase() && billArray[i + 1].toLowerCase() === "Price".toLowerCase()) {
+  //       unitPrice = parseFloat(billArray[i + 18].replace("₹", ""));
+  //     }
+  //     if (billArray[i].toLowerCase() === "Qty".toLowerCase()) {
+  //       qty = parseFloat(billArray[i + 17]);
+  //     }
+  //     if (billArray[i].toLowerCase() === "Net".toLowerCase() && billArray[i + 1].toLowerCase() === "Amount".toLowerCase()) {
+  //       netAmount = parseFloat(billArray[i + 17].replace("₹", ""));
+  //     }
+  //     if (billArray[i].toLowerCase() === "Tax".toLowerCase() && billArray[i + 1].toLowerCase() === "Rate".toLowerCase()) {
+  //       taxRate = parseFloat(billArray[i + 16].replace("%", ""));
+  //     }
+  //     if (billArray[i].toLowerCase() === "Tax".toLowerCase() && billArray[i + 1].toLowerCase() === "Type".toLowerCase()) {
+  //       taxType = billArray[i + 15];
+  //     }
+  //     if (billArray[i].toLowerCase() === "Tax".toLowerCase() && billArray[i + 1].toLowerCase() === "Amount".toLowerCase()) {
+  //       taxAmount = parseFloat(billArray[i + 17].replace("₹", ""));
+  //     }
+  //     if (billArray[i].toLowerCase() === "TOTAL:".toLowerCase()) {
+  //       totaltaxAmount = parseFloat(billArray[i + 1].replace("₹", ""));
+  //       totalAmount = parseFloat(billArray[i + 2].replace("₹", ""));
+  //     }
+  //     if (billArray[i].toLowerCase() === "TOTAL".toLowerCase()) {
+  //       totaltaxAmount = parseFloat(billArray[i + 1].replace("₹", ""));
+  //       totalAmount = parseFloat(billArray[i + 2].replace("₹", ""));
+  //     }
+  //     if (billArray[i].toLowerCase() === "GRAND TOTAL".toLowerCase()) {
+  //       totaltaxAmount = parseFloat(billArray[i + 1].replace("₹", ""));
+  //       totalAmount = parseFloat(billArray[i + 2].replace("₹", ""));
+  //     }
+  //     if (billArray[i].toLowerCase() === "GRAND TOTAL :".toLowerCase()) {
+  //       totaltaxAmount = parseFloat(billArray[i + 1].replace("₹", ""));
+  //       totalAmount = parseFloat(billArray[i + 2].replace("₹", ""));
+  //     }
+  //     if (billArray[i].toLowerCase() === "TOTAL=".toLowerCase()) {
+  //       totaltaxAmount = parseFloat(billArray[i + 1].replace("₹", ""));
+  //       totalAmount = parseFloat(billArray[i + 2].replace("₹", ""));
+  //     }
+  //     if (billArray[i].toLowerCase() === "TOTAL=".toLowerCase()) {
+  //       totaltaxAmount = parseFloat(billArray[i + 1].replace("₹", ""));
+  //       totalAmount = parseFloat(billArray[i + 2].replace("₹", ""));
+  //     }
+  //     if (billArray[i].toLowerCase() === "TOTAL rs. ".toLowerCase()) {
+  //       totaltaxAmount = parseFloat(billArray[i + 1].replace("₹", ""));
+  //       totalAmount = parseFloat(billArray[i + 2].replace("₹", ""));
+  //       console.log(totalAmount,"tota");
+  //     }
+  //     if (billArray[i].toLowerCase() === "GRAND TOTAL=".toLowerCase()) {
+  //       totaltaxAmount = parseFloat(billArray[i + 1].replace("₹", ""));
+  //       totalAmount = parseFloat(billArray[i + 2].replace("₹", ""));
+  //     }
+  //     if (billArray[i].toLowerCase() === "GRAND TOTAL =".toLowerCase()) {
+  //       totaltaxAmount = parseFloat(billArray[i + 1].replace("₹", ""));
+  //       totalAmount = parseFloat(billArray[i + 2].replace("₹", ""));
+  //     }
    
-    }
-    return {
-      invoiceDate,
-      panNo,
-      GSTNO,
-      orderNo,
-      invoiceDetails,
-      unitPrice,
-      qty,
-      netAmount,
-      taxRate,
-      taxType,
-      taxAmount,
-      totaltaxAmount,
-      totalAmount,
-    };
+  //   }
+  //   return {
+  //     invoiceDate,
+  //     panNo,
+  //     GSTNO,
+  //     orderNo,
+  //     invoiceDetails,
+  //     unitPrice,
+  //     qty,
+  //     netAmount,
+  //     taxRate,
+  //     taxType,
+  //     taxAmount,
+  //     totaltaxAmount,
+  //     totalAmount,
+  //   };
   
-  }
+  // }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //configuration
 app.listen(process.env.PORT, () => {

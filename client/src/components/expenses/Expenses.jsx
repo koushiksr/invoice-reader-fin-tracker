@@ -6,6 +6,12 @@ import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 import "./expense.css";
 const Expenses = () => {
+
+let absorption = [ 
+  {"q1":'',"type":''},
+  {"q1":'',"type":''}
+]
+
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
   const [expData, setExpData] = useState(null);
@@ -14,24 +20,27 @@ const Expenses = () => {
   const [success, setSuccess] = useState(false);
   const [formFinalData, setFormFinalData] = useState({
     invoiceDate: "",
-    // panNo: "",
-    // GSTNO: "",
-    // orderNo: "",
-    // invoiceDetails: "",
-    // unitPrice: "",
-    // qty: "",
-    // netAmount: "",
-    // taxRate: "",
-    // taxType: "",
-    // taxAmount: "",
-    // totaltaxAmount: "",
-    // totalAmount: "",
+    panNo: "",
+    GSTNO: "",
+    orderNo: "",
+    invoiceDetails: "",
+    unitPrice: "",
+    qty: "",
+    netAmount: "",
+    taxRate: "",
+    taxType: "",
+    taxAmount: "",
+    totaltaxAmount: "",
+    totalAmount: "",
   });
   useEffect(() => {
     expenseData();
-  }, []);
+  }, [formFinalData]);
 
-  const handleFileChange = (event) => {
+  const handleFileChange = (event) => 
+  {
+    
+
     setFile(event.target.files[0]);
     const formData = new FormData();
     formData.append("pdfFile", event.target.files[0]);
@@ -40,10 +49,12 @@ const Expenses = () => {
       .post(`http://localhost:5000/expense/upload/${data}`, formData)
       .then((response) => {
         setResData(response.data.data);
+        setFormFinalData({})
         if (response.status === 200) {
           setData(true);
           console.log(response.data.data);
           setFormFinalData(response.data.data);
+         
         }
       })
       .catch((error) => {
@@ -63,6 +74,21 @@ const Expenses = () => {
         if (response.status == 200) {
           setSuccess(true);
           expenseData();
+          setFormFinalData({
+            invoiceDate: "",
+            panNo: "",
+            GSTNO: "",
+            orderNo: "",
+            invoiceDetails: "",
+            unitPrice: "",
+            qty: "",
+            netAmount: "",
+            taxRate: "",
+            taxType: "",
+            taxAmount: "",
+            totaltaxAmount: "",
+            totalAmount: "",
+          })
         }
       })
       .catch((error) => {
@@ -96,12 +122,6 @@ const Expenses = () => {
     });
   };
 
-  // const handleSubmit = (e) => {
-  // e.preventDefault();
-  // console.log('Form submitted:', formData);
-  // Add logic to send the data to the server or perform further actions
-  // };
-
   const excludeFields = ["_id", "__v"];
   pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
@@ -109,7 +129,6 @@ const Expenses = () => {
     <>
       <div>
         <input type="file" onChange={handleFileChange} accept=".pdf" />
-        {/* <button onClick={handleUpload}>Upload PDF</button> */}
       </div>
       <div>
         {file && (
@@ -120,9 +139,6 @@ const Expenses = () => {
               </h1>
               <Document file={file}>
                 <Page pageNumber={1} />
-                {/* <Page pageNumber={2} />
-            <Page pageNumber={3} />
-            <Page pageNumber={4} /> */}
               </Document>
             </div>
             {resData ? (
@@ -156,6 +172,30 @@ const Expenses = () => {
               <h1>form</h1>
               <div>
                 <form onSubmit={handleUpload}>
+                  <label htmlFor="invoiceDate">Invoice Date:</label>
+                  <input
+                    type="text"
+                    id="invoiceDate"
+                    name="invoiceDate"
+                    value={formFinalData.invoiceDate}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="GST">GST :</label>
+                  <input
+                    type="text"
+                    id="GST"
+                    name="GST"
+                    value={formFinalData.GST}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="salary">salary :</label>
+                  <input
+                    type="text"
+                    id="salary"
+                    name="salary"
+                    value={formFinalData.salary}
+                    onChange={handleChange}
+                  />
                   <label htmlFor="invoiceDate">Invoice Date:</label>
                   <input
                     type="text"
@@ -274,7 +314,7 @@ const Expenses = () => {
                   {success ? (
                     <p>File uploaded successfully!</p>
                   ) : (
-                    <button type="submit">Upload PDF</button>
+                    <button type="submit">Submit data</button>
                   )}
 
                   {/* <button type="submit">Upload PDF</button> */}
