@@ -132,7 +132,7 @@ app.post("/expense/upload/:data", upload.single("pdfFile"), async (req, res) => 
           stringWithoutSpaces = pdfText.join("").replace(/\s/g, "");
           // reciptType = "Plain";
           // }
-          console.log(stringWithoutSpaces);
+          // console.log(stringWithoutSpaces);
   }
     if (req.params.data == "null") {
       const keywordData = await keywordDetetctor(
@@ -334,165 +334,211 @@ async function keywordDetetctor(billArray, reciptType) {
     // console.log("Amazon recipt");
   // if(reciptType === "Plain" ){
   //  console.log(billArray,"plain recipt");
-    for (let i = 0; i + 3 < billArray.length; i++) {
-      if (
-        billArray[i].toLowerCase() === "s" &&
-        billArray[i + 1].toLowerCase() === "g" &&
-        billArray[i + 2].toLowerCase() === "s" &&
-        billArray[i + 3].toLowerCase() === "t"
-      ) {
-        let cost = "";
-        for (
-          let i = 0;
-          10 > billArray[i + 3].toLowerCase() || billArray[i + 3] === ".";
-          i++
-        ) {
-          cost = cost + billArray[i + 3];
+  // let billArray = "gst:₹1000TaxInvoice/BillofSupply/CashMemo(OriginalforRecipient)*ASSPL-AmazonSellerServicesPvt.Ltd.,ARIPL-AmazonRetailIndiaPvt.Ltd.(onlywhereAmazonRetailIndiaPvt.Ltd.fulfillmentcenterisco-located)CustomersdesirousofavailinginputGSTcreditarerequestedtocreateaBusinessaccountandpurchaseonAmazon.in/businessfromBusinesseligibleoffersPleasenotethatthisinvoiceisnotademandforpaymentPage1of1ForShivShaktiTraders:AuthorizedSignatoryOrderNumber:402-7797401-2704355InvoiceNumber:IN-523OrderDate:05.11.2023InvoiceDetails:PB-408402355-2324InvoiceDate:05.11.2023Sl.NoDescriptionUnitPriceQtyNetAmountTaxRateTaxTypeTaxAmountTotalAmount1NICTORPolyvinylChlorideAdjustableSkippingRopeforMemandWomen(Blue,Black)|B08KS6J226(NICTOR-Blue-Black-Skipping_Rope)HSN:9506₹134.751₹134.7518%IGST₹24.25₹159.00TOTAL:₹24.25₹159.00AmountinWords:OneHundredFifty-nineonlyWhethertaxispayableunderreversecharge-NoSoldBy:ShivShaktiTraders*927amritviharbacksideverkamilkplantJALANDHAR,PUNJAB,144001INPANNo:BVCPR8908LGSTRegistrationNo:03BVCPR8908L1Z6DynamicQRCode:BillingAddress:RaviswamyPICAMPPvtLtd,BuildingNo:2,Hustlehubtechpark,HsrLayoutBENGALURU,KARNATAKA,560102INState/UTCode:29ShippingAddress:RaviswamyPRaviswamyPICAMPPvtLtd,BuildingNo:2,Hustlehubtechpark,HsrLayoutBENGALURU,KARNATAKA,560102INState/UTCode:29Placeofsupply:KARNATAKAPlaceofdelivery:KARNATAKA";
+  let conditions = ["panno", "computer", "salary", "total", "salary", "gst", "rent", "gst:₹", "total:₹", "orderdate:", "sgst", "cgst", "misc"];
+  function extractValueWithConditions(billArray, conditions) {
+    conditions = conditions.split("");
+    const conditionSet = new Set(conditions);
+  
+    for (let i = 0; i < billArray.length; i++) {
+        let dynamicConditionMet = true;
+  
+        for (let j = 0; j < conditions.length; j++) {
+            if (billArray[i]?.toLowerCase() !== conditions[j]) {
+                dynamicConditionMet = false;
+                break;
+            }
+            i++;
         }
-        GST = CGST+ parseInt(cost);
-      }
-      if (
-        billArray[i].toLowerCase() === "c" &&
-        billArray[i + 1].toLowerCase() === "g" &&
-        billArray[i + 2].toLowerCase() === "s" &&
-        billArray[i + 3].toLowerCase() === "t"
-      ) {
-        let cost = "";
-        for (
-          let i = 0;
-          10 > billArray[i + 3].toLowerCase() || billArray[i + 3] === ".";
-          i++
-        ) {
-          cost = cost + billArray[i + 3];
+  
+        if (dynamicConditionMet) {
+            let value = "";
+            while (
+                i < billArray.length &&
+                (!isNaN(billArray[i]) || conditionSet.has(billArray[i])) || billArray[i] === "." || (billArray[i] === "." && billArray[i + 1] === ".")
+            ) {
+                value += billArray[i];
+                i++;
+            }
+            let result = parseFloat(value) !== "NaN" ? parseFloat(value) : value;
+            return isNaN(result) ? null : result;
         }
-        GST = parseInt(cost);
-      }
-      if (
-        billArray[i].toLowerCase() === "m" &&
-        billArray[i + 1].toLowerCase() === "i" &&
-        billArray[i + 2].toLowerCase() === "s" &&
-        billArray[i + 3].toLowerCase() === "c"
-      ) {
-        let cost = "";
-        for (
-          let i = 0;
-          10 > billArray[i + 3].toLowerCase() || billArray[i + 3] === ".";
-          i++
-        ) {
-          cost = cost + billArray[i + 3];
-        }
-        misc =  SGST+parseInt(cost);
-      }
-      if (
-        billArray[i].toLowerCase() === "r" &&
-        billArray[i + 1].toLowerCase() === "e" &&
-        billArray[i + 2].toLowerCase() === "n" &&
-        billArray[i + 3].toLowerCase() === "t"
-      ) {
-        let cost = "";
-        for (
-          let i = 0;
-          10 > billArray[i + 3].toLowerCase() || billArray[i + 3] === ".";
-          i++
-        ) {
-          cost = cost + billArray[i + 3];
-        }
-        buildingExp = parseInt(cost);
-      }
     }
-    for (let i = 0; i + 2 < billArray.length; i++) {
-      if (
-        billArray[i].toLowerCase() === "g" &&
-        billArray[i + 1].toLowerCase() === "s" &&
-        billArray[i + 2].toLowerCase() === "t"
-      ) {
-        let cost = "";
-        for (
-          let i = 0;
-          10 > billArray[i + 3].toLowerCase() || billArray[i + 3] === ".";
-          i++
-        ) {
-          cost = cost + billArray[i + 3];
-        }
-        GST =  parseInt(cost);
-      }
-    }
-    for (let i = 0; i + 5 < billArray.length; i++) {
-      if (
-        billArray[i].toLowerCase() === "s" &&
-        billArray[i + 1].toLowerCase() === "a" &&
-        billArray[i + 2].toLowerCase() === "l" &&
-        billArray[i + 3].toLowerCase() === "a" &&
-        billArray[i + 4].toLowerCase() === "r" &&
-        billArray[i + 5] === "y"
-      ) {
-        let cost = "";
-        for (
-          let i = 0;
-          10 > billArray[i + 3].toLowerCase() || billArray[i + 3] === ".";
-          i++
-        ) {
-          cost = cost + billArray[i + 3];
-        }
-        salary = parseInt(cost);
-      }
-    }
-    for (let i = 0; i + 7 < billArray.length; i++) {
-      if (
-        billArray[i].toLowerCase() === "c" &&
-        billArray[i + 1].toLowerCase() === "o" &&
-        billArray[i + 2].toLowerCase() === "m" &&
-        billArray[i + 3].toLowerCase() === "p" &&
-        billArray[i + 4].toLowerCase() === "u" &&
-        billArray[i + 5].toLowerCase() === "t" &&
-        billArray[i + 6].toLowerCase() === "e" &&
-        billArray[i + 7].toLowerCase() === "r"
-      ) {
-        let cost = "";
-        for (
-          let i = 0;
-          10 > billArray[i + 3].toLowerCase() || billArray[i + 3] === ".";
-          i++
-        ) {
-          cost = cost + billArray[i + 3];
-        }
-        ComputersExpe =  parseInt(cost);
-      }
-    }
-    for (let i = 0; i + 5 < billArray.length; i++) {
-      if (
-        billArray[i].toLowerCase() === "t" &&
-        billArray[i + 1].toLowerCase() === "o" &&
-        billArray[i + 2].toLowerCase() === "t" &&
-        billArray[i + 3].toLowerCase() === "a" &&
-        billArray[i + 4].toLowerCase() === "l"
-      ) {
-        let cost = "";
-        for (
-          let i = 0;
-          10 > billArray[i + 3].toLowerCase() || billArray[i + 3] === ".";
-          i++
-        ) {
-          cost = cost + billArray[i + 3];
-        }
-        totalcost =parseInt(cost);
-      }
-    }
-    for (let i = 0; i + 4 < billArray.length; i++) {
-      if (
-        billArray[i].toLowerCase() === "p" &&
-        billArray[i + 1].toLowerCase() === "a" &&
-        billArray[i + 2].toLowerCase() === "n" &&
-        billArray[i + 3].toLowerCase() === "n" &&
-        billArray[i + 4].toLowerCase() === "o"
-      ) {
-        let cost = "";
-        for (let i = 0; i < 11; i++) {
-          cost = cost + billArray[i + 3];
-        }
-        panNo =  cost;
-      }
-    }
+  
+    return null;
+}
+
+
+for (let i = 0; i < conditions.length; i++) {
+    let extractedValue = extractValueWithConditions(billArray, conditions[i]);
+    console.log("Extracted Value for", conditions[i], ":", extractedValue);
+}
+
+
+
+
+
+
+    // for (let i = 0; i + 3 < billArray.length; i++) {
+      // if (
+      //   billArray[i].toLowerCase() === "s" &&
+      //   billArray[i + 1].toLowerCase() === "g" &&
+      //   billArray[i + 2].toLowerCase() === "s" &&
+      //   billArray[i + 3].toLowerCase() === "t"
+      // ) {
+      //   let cost = "";
+      //   for (
+      //     let i = 0;
+      //     10 > billArray[i + 3].toLowerCase() || billArray[i + 3] === ".";
+      //     i++
+      //   ) {
+      //     cost = cost + billArray[i + 3];
+      //   }
+      //   GST = CGST+ parseInt(cost);
+      // }
+      // if (
+      //   billArray[i].toLowerCase() === "c" &&
+      //   billArray[i + 1].toLowerCase() === "g" &&
+      //   billArray[i + 2].toLowerCase() === "s" &&
+      //   billArray[i + 3].toLowerCase() === "t"
+      // ) {
+      //   let cost = "";
+      //   for (
+      //     let i = 0;
+      //     10 > billArray[i + 3].toLowerCase() || billArray[i + 3] === ".";
+      //     i++
+      //   ) {
+      //     cost = cost + billArray[i + 3];
+      //   }
+      //   GST = parseInt(cost);
+      // }
+      // if (
+      //   billArray[i].toLowerCase() === "m" &&
+      //   billArray[i + 1].toLowerCase() === "i" &&
+      //   billArray[i + 2].toLowerCase() === "s" &&
+      //   billArray[i + 3].toLowerCase() === "c"
+      // ) {
+      //   let cost = "";
+      //   for (
+      //     let i = 0;
+      //     10 > billArray[i + 3].toLowerCase() || billArray[i + 3] === ".";
+      //     i++
+      //   ) {
+      //     cost = cost + billArray[i + 3];
+      //   }
+      //   misc =  SGST+parseInt(cost);
+      // }
+      // if (
+      //   billArray[i].toLowerCase() === "r" &&
+      //   billArray[i + 1].toLowerCase() === "e" &&
+      //   billArray[i + 2].toLowerCase() === "n" &&
+      //   billArray[i + 3].toLowerCase() === "t"
+      // ) {
+      //   let cost = "";
+      //   for (
+      //     let i = 0;
+      //     10 > billArray[i + 3].toLowerCase() || billArray[i + 3] === ".";
+      //     i++
+      //   ) {
+      //     cost = cost + billArray[i + 3];
+      //   }
+      //   buildingExp = parseInt(cost);
+      // }
+    // }
+    // for (let i = 0; i + 2 < billArray.length; i++) {
+    //   if (
+    //     billArray[i].toLowerCase() === "g" &&
+    //     billArray[i + 1].toLowerCase() === "s" &&
+    //     billArray[i + 2].toLowerCase() === "t"
+    //   ) {
+    //     let cost = "";
+    //     for (
+    //       let i = 0;
+    //       10 > billArray[i + 3].toLowerCase() || billArray[i + 3] === ".";
+    //       i++
+    //     ) {
+    //       cost = cost + billArray[i + 3];
+    //     }
+    //     GST =  parseInt(cost);
+    //   }
+    // }
+    // for (let i = 0; i + 5 < billArray.length; i++) {
+    //   if (
+    //     billArray[i].toLowerCase() === "s" &&
+    //     billArray[i + 1].toLowerCase() === "a" &&
+    //     billArray[i + 2].toLowerCase() === "l" &&
+    //     billArray[i + 3].toLowerCase() === "a" &&
+    //     billArray[i + 4].toLowerCase() === "r" &&
+    //     billArray[i + 5] === "y"
+    //   ) {
+    //     let cost = "";
+    //     for (
+    //       let i = 0;
+    //       10 > billArray[i + 3].toLowerCase() || billArray[i + 3] === ".";
+    //       i++
+    //     ) {
+    //       cost = cost + billArray[i + 3];
+    //     }
+    //     salary = parseInt(cost);
+    //   }
+    // }
+    // for (let i = 0; i + 7 < billArray.length; i++) {
+    //   if (
+    //     billArray[i].toLowerCase() === "c" &&
+    //     billArray[i + 1].toLowerCase() === "o" &&
+    //     billArray[i + 2].toLowerCase() === "m" &&
+    //     billArray[i + 3].toLowerCase() === "p" &&
+    //     billArray[i + 4].toLowerCase() === "u" &&
+    //     billArray[i + 5].toLowerCase() === "t" &&
+    //     billArray[i + 6].toLowerCase() === "e" &&
+    //     billArray[i + 7].toLowerCase() === "r"
+    //   ) {
+    //     let cost = "";
+    //     for (
+    //       let i = 0;
+    //       10 > billArray[i + 3].toLowerCase() || billArray[i + 3] === ".";
+    //       i++
+    //     ) {
+    //       cost = cost + billArray[i + 3];
+    //     }
+    //     ComputersExpe =  parseInt(cost);
+    //   }
+    // }
+    // for (let i = 0; i + 5 < billArray.length; i++) {
+    //   if (
+    //     billArray[i].toLowerCase() === "t" &&
+    //     billArray[i + 1].toLowerCase() === "o" &&
+    //     billArray[i + 2].toLowerCase() === "t" &&
+    //     billArray[i + 3].toLowerCase() === "a" &&
+    //     billArray[i + 4].toLowerCase() === "l"
+    //   ) {
+    //     let cost = "";
+    //     for (
+    //       let i = 0;
+    //       10 > billArray[i + 3].toLowerCase() || billArray[i + 3] === ".";
+    //       i++
+    //     ) {
+    //       cost = cost + billArray[i + 3];
+    //     }
+    //     totalcost =parseInt(cost);
+    //   }
+    // }
+
+    // for (let i = 0; i + 4 < billArray.length; i++) {
+    //   if (
+    //     billArray[i].toLowerCase() === "p" &&
+    //     billArray[i + 1].toLowerCase() === "a" &&
+    //     billArray[i + 2].toLowerCase() === "n" &&
+    //     billArray[i + 3].toLowerCase() === "n" &&
+    //     billArray[i + 4].toLowerCase() === "o"
+    //   ) {
+    //     let cost = "";
+    //     for (let i = 0; i < 11; i++) {
+    //       cost = cost + billArray[i + 3];
+    //     }
+    //     panNo =  cost;
+    //   }
+    // }
     console.log({
       invoiceDate,
       GST,
@@ -625,6 +671,46 @@ async function keywordDetetctor(billArray, reciptType) {
   
   // }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //configuration
 app.listen(process.env.PORT, () => {
