@@ -124,12 +124,12 @@ app.post("/expense/upload/:data", upload.single("pdfFile"), async (req, res) => 
        allWordOfPDF.push(...a.split(" "));
       });
       pdfTextString = allWordOfPDF.join(" ");
-      
       // if (pdfTextString.includes("Amazon")) {
-        //   stringWithoutSpaces = pdfText;
-        //   reciptType = "Amazon";
-        // } else {
-          stringWithoutSpaces = pdfText.join("").replace(/\s/g, "");
+      //   stringWithoutSpaces = pdfText;
+      //   reciptType = "Amazon";
+      // } else {
+      stringWithoutSpaces = pdfText.join("").replace(/\s/g, "");
+      console.log(stringWithoutSpaces);
           // reciptType = "Plain";
           // }
           // console.log(stringWithoutSpaces);
